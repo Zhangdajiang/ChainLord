@@ -59,3 +59,11 @@ state/*.json
 
 # Logs
 *.log
+
+# 内部计划和草稿文件
+复盘*.md
+*计划*.md
+思路*.txt
+方案*.txt
+*草稿*.md
+项目名称.txt
