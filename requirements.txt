@@ -1,0 +1,18 @@
+# Streamlit 网页框架
+streamlit>=1.28.0
+
+# SpoonOS SDK
+spoon-ai-sdk>=0.3.6
+
+# 环境变量管理
+python-dotenv>=1.0.0
+
+# OpenAI API（如果使用 OpenAI）
+openai>=1.0.0
+
+# HTTP 请求（豆包/元宝 API 调用）
+requests>=2.31.0
+
+# Web3 相关（用于钱包连接，可选）
+web3>=6.0.0
+

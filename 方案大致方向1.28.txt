@@ -1,0 +1,58 @@
+在计算机大厂，一个项目通常遵循：需求定义 (PRD) -> 技术方案设计 (RFC) -> 敏捷开发 (Sprints) -> 测试与交付 (QA & Launch)。
+下面我把你的“谋士府”项目，按照大厂流程细化成五个“颗粒度”极细的开发阶段：
+第一阶段：需求定义与产品原型 (PRD - Product Requirement Document)
+大厂逻辑：先想清楚“用户故事”，再写一行代码。
+目标： 明确 DApp 的三个核心角色。
+动作（在 Cursor 中输入）：
+“请帮我整理一份‘谋士府’ DApp 的产品需求文档。
+角色定义：守财奴（风险控制、链上数据）、冲锋员（实时资讯、热点）、和事佬（决策总结）。
+核心流：用户提问 -> 冲锋员搜信息 -> 守财奴查余额/Gas -> 和事佬总结建议。
+交付物：一个基于 Streamlit 的网页界面。”
+大厂启示： 明确 MVP（最小可行性产品）。第一版不要做太复杂，只要这三个 AI 能排队说话，就算成功。
+第二阶段：技术选型与骨架搭建 (Architecture Design)
+大厂逻辑：模块化。把系统拆成“大脑、眼睛、嘴巴、记事本”。
+模块拆解：
+大脑 (Orchestrator)：负责调度三个 Agent 的 Python 逻辑。
+眼睛 (MCP Tools)：接入 Google Search 和 Neo X Explorer 的 API。
+嘴巴 (Frontend)：Streamlit 网页。
+记事本 (Persistence)：本地 memory.json 文件。
+动作： 让 Cursor 创建文件结构：
+code
+Text
+/Counselor_Room
+├── app.py          # 嘴巴：Streamlit 界面逻辑
+├── agents.py       # 大脑：定义三个谋士的角色和提示词
+├── tools.py        # 眼睛：存放 MCP 工具和 API 调用
+└── memory.json     # 记事本：存放我们的聊天记录
+第三阶段：迭代式开发 (Agile Sprints)
+大厂逻辑：小步快跑，每个 Sprint 产出一个可运行的版本。
+Sprint 1：让 AI “开口说话”
+任务： 在 agents.py 里定义三个基本的 Claude/GPT 模型，不接工具，只接人设。
+Vibe Coding 指令： “请在 agents.py 里帮我写三个 Python 类，分别代表三个谋士，给他们设定好性格，并确保我给 app.py 发消息时，他们能按顺序回复我。”
+Sprint 2：给 AI “装上眼睛” (接入 MCP)
+任务： 接入 SpoonOS 的工具集。
+Vibe Coding 指令： “现在修改 tools.py。参考 SpoonOS 文档，接入一个搜索工具和一个 Neo X 余额查询工具。把这两个工具分别分配给‘冲锋员’和‘守财奴’。”
+Sprint 3：赋予“记忆力” (Persistence)
+任务： 读写 JSON 文件。
+Vibe Coding 指令： “请在 app.py 中增加逻辑，每次聊天结束后，把对话内容存入 memory.json。下次启动时，把最新的 5 条记录作为上下文传给 AI。”
+第四阶段：代码评审与优化 (Code Review & Refactoring)
+大厂逻辑：代码不仅要能跑，还要好看、健壮。
+动作： 把写好的代码全选，发给 Cursor：
+“我现在是你的高级技术主管（Senior Tech Lead），请 Review 我的代码。重点看看：
+如果搜索接口挂了，程序会奔溃吗？（容错性）
+提示词（Prompt）是否够清晰？（Prompt Engineering）
+哪里可以写得更简洁？”
+第五阶段：冒烟测试与发布 (QA & Launch)
+大厂逻辑：模拟各种奇葩用户，确保不翻车。
+测试用例：
+极端测试：问它“世界末日了怎么办？”看和事佬怎么圆场。
+隐私测试：故意不给 API Key，看它报错是否友好。
+压力测试：快速连续点发送，看 Streamlit 是否卡死。
+给你这个“小玩家”的额外“大厂建议”：
+日志思维 (Logging)：在代码里多写点 print("冲锋员正在搜索...")。这样当程序卡住时，你在终端能看到它卡在哪一步了。
+环境变量 (Security)：千万不要把你的 API Key 直接写在代码里（会被偷）。建立一个 .env 文件，这是大厂的标准安全实践。
+Prompt 隔离：把谋士的提示词写在独立的文本文件或者 agents.py 的常量里，方便你随时微调他们的“毒舌”程度。
+你现在的第一个具体动作：
+打开 Cursor，在一个空文件夹里，直接把上面的 “第二阶段：骨架搭建” 的文件结构发给它，让它帮你生成这几个文件的初始代码。
+你要对 Cursor 说：
+“请作为一名资深架构师，帮我初始化这个‘谋士府’项目。请按照以下结构生成基础代码：app.py (Streamlit UI), agents.py (基于 SpoonOS 的多 Agent 逻辑), tools.py (工具占位符)。我们先不写复杂的，先让这个骨架跑通，让三个 Agent 能打招呼。”

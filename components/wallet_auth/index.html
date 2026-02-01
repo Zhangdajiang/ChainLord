@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { margin: 0; font-family: sans-serif; }
+      .btn {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 0;
+        background: #2563eb;
+        color: #fff;
+        cursor: pointer;
+      }
+      .status { color: #94a3b8; margin-top: 6px; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <button id="connectSignBtn" class="btn">🔌 连接钱包并签名</button>
+    <div id="status" class="status"></div>
+    <script>
+      const statusEl = document.getElementById("status");
+      const btn = document.getElementById("connectSignBtn");
+      let currentArgs = {};
+
+      function sendMessage(type, data) {
+        window.parent.postMessage(
+          Object.assign({ isStreamlitMessage: true, type }, data || {}),
+          "*"
+        );
+      }
+
+      function setComponentReady() {
+        sendMessage("streamlit:componentReady", { apiVersion: 1 });
+        sendMessage("streamlit:setFrameHeight", { height: 120 });
+      }
+
+      window.addEventListener("message", (event) => {
+        const data = event.data;
+        if (data && data.type === "streamlit:render") {
+          currentArgs = data.args || {};
+        }
+      });
+
+      setComponentReady();
+
+      async function connectAndSign() {
+        try {
+          const eth = window.ethereum || window.parent.ethereum;
+          if (!eth) {
+            statusEl.innerText = "未检测到钱包插件，请确认 OKX / MetaMask 已启用";
+            return;
+          }
+          const accounts = await eth.request({ method: "eth_requestAccounts" });
+          const address = accounts && accounts.length ? accounts[0] : "";
+          if (!address) {
+            statusEl.innerText = "未获取到钱包地址";
+            return;
+          }
+          const chainIdHex = await eth.request({ method: "eth_chainId" });
+          if (chainIdHex !== "0x1") {
+            statusEl.innerText = "请切换到以太坊主网后再签名";
+            return;
+          }
+          const nonce = currentArgs.nonce || "";
+          const statement = currentArgs.statement || "Sign in to My AI Lab";
+          const domain = window.parent.location.host;
+          const uri = window.parent.location.origin;
+          const issuedAt = new Date().toISOString();
+          const chainId = parseInt(chainIdHex, 16).toString();
+          const message =
+            `${domain} wants you to sign in with your Ethereum account:\n` +
+            `${address}\n\n${statement}\n\nURI: ${uri}\nVersion: 1\n` +
+            `Chain ID: ${chainId}\nNonce: ${nonce}\nIssued At: ${issuedAt}`;
+          const signature = await eth.request({
+            method: "personal_sign",
+            params: [message, address],
+          });
+          statusEl.innerText = "签名完成，正在返回...";
+          sendMessage("streamlit:setComponentValue", {
+            value: {
+              address,
+              signature,
+              message,
+              nonce,
+              chain_id: chainId,
+            },
+          });
+        } catch (err) {
+          statusEl.innerText = "连接或签名失败，请重试";
+        }
+      }
+
+      btn.addEventListener("click", connectAndSign);
+    </script>
+  </body>
+</html>
